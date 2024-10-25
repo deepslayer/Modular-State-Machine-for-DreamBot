@@ -50,6 +50,9 @@ Both **Modular State Machine** and DreamBot’s `TreeScript` provide robust fram
 
 ### Diagrams
 
+![Flowchart of the Modular State Machine](images/MSMFlow.png)
+
+![Components of the Modular State Machine](images/MSMFlow2.png)
 
 
 ### Conclusion
