@@ -51,3 +51,18 @@ Meanwhile, **TreeScript** would require:
 - **Monolithic branches** to handle multiple actions within a single `Leaf`, violating single-responsibility principles.
 
 This example highlights MSM’s power in scenarios where **speed, flexibility, and modularity** are crucial, making it ideal for real-time PvP sequences where precision and adaptability are essential.
+
+### Key Difference in Control Flow and Re-Evaluation
+
+- **Modular State Machine (MSM)**:
+   - Each `SequenceState` progresses through its `ActionState`s sequentially, with control briefly passing through DreamBot’s `onLoop` to allow for game updates before moving to the next action.
+   - **No root re-evaluation** is necessary between steps in a `SequenceState`, so the execution remains focused on the sequence until it completes, optimizing for uninterrupted sequences in high-speed scenarios.
+
+- **TreeScript**:
+   - **Iterator-Based Execution**: Each `Branch` evaluates its child nodes using an iterator to determine the next valid `Leaf`, then executes it and returns control to the root. 
+   - This design **returns to the root and re-evaluates the tree** at each loop, which can add overhead and complexity in scenarios that need sequential execution.
+
+### Summary
+
+In both frameworks, control returns to `onLoop`, but **TreeScript’s iterator-based approach re-evaluates each node at the root**. By contrast, **MSM’s `SequenceState` progresses linearly through its `ActionState`s** without requiring re-evaluation, making it more streamlined and efficient for executing high-speed action sequences.
+
