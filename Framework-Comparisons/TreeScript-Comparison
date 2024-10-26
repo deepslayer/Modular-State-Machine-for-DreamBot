@@ -1,5 +1,3 @@
-Absolutely, following the **Single Responsibility Principle (SRP)** means each action (such as selecting a prayer, switching a weapon, and attacking) should ideally be in its own `ActionState` or `Leaf`. This setup allows each action to be independent, modular, and reusable across different contexts. Here’s how this can look when broken down into three separate `ActionState`s in **MSM** and three `Leaf` nodes in **TreeScript**.
-
 ### Modular State Machine (MSM) - Separated Action States
 
 ```java
