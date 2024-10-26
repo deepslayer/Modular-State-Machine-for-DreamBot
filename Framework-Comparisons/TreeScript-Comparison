@@ -1,0 +1,158 @@
+Absolutely, following the **Single Responsibility Principle (SRP)** means each action (such as selecting a prayer, switching a weapon, and attacking) should ideally be in its own `ActionState` or `Leaf`. This setup allows each action to be independent, modular, and reusable across different contexts. Here’s how this can look when broken down into three separate `ActionState`s in **MSM** and three `Leaf` nodes in **TreeScript**.
+
+### Modular State Machine (MSM) - Separated Action States
+
+```java
+package ModularStateMachine.Actions;
+
+import Framework.ModularStateMachine.ActionState;
+import Framework.ModularStateMachine.StateMachine;
+import org.dreambot.api.methods.prayer.Prayer;
+import org.dreambot.api.methods.prayer.Prayers;
+import org.dreambot.api.methods.combat.Combat;
+import static org.dreambot.api.utilities.Logger.log;
+
+public class SelectPrayerAction extends ActionState {
+    public SelectPrayerAction(StateMachine machine) {
+        super(machine);
+    }
+
+    @Override
+    public void execute() {
+        if (!Prayers.isActive(Prayer.PROTECT_FROM_MELEE)) {
+            Prayers.toggle(true, Prayer.PROTECT_FROM_MELEE);
+            log("Activated Protect from Melee prayer.");
+        }
+        markComplete();  // Action complete
+    }
+}
+
+public class SwitchWeaponAction extends ActionState {
+    public SwitchWeaponAction(StateMachine machine) {
+        super(machine);
+    }
+
+    @Override
+    public void execute() {
+        if (!Equipment.contains("Sword")) {
+            Inventory.interact("Sword", "Equip");
+            log("Switched to Sword.");
+        }
+        markComplete();  // Action complete
+    }
+}
+
+public class AttackAction extends ActionState {
+    public AttackAction(StateMachine machine) {
+        super(machine);
+    }
+
+    @Override
+    public void execute() {
+        if (!Combat.isInCombat()) {
+            Combat.attack("Enemy");
+            log("Attacking Enemy.");
+        }
+        markComplete();  // Action complete
+    }
+}
+```
+
+With each step in its own `ActionState`, they can be managed individually and reused or reordered as needed. Here’s how they’d look in a `SequenceState`.
+
+```java
+public class PvPSequenceState extends SequenceState {
+    public PvPSequenceState(StateMachine machine) {
+        super(machine);
+        addSubState(new SelectPrayerAction(machine));
+        addSubState(new SwitchWeaponAction(machine));
+        addSubState(new AttackAction(machine));
+    }
+
+    @Override
+    public boolean isValid() {
+        // Condition to start this sequence, e.g., if player is not in safe area
+        return !Combat.isInSafeZone();
+    }
+}
+```
+
+### TreeScript - Separated Leaf Nodes
+
+Following SRP in **TreeScript** would also involve creating separate `Leaf` nodes for each action. Here’s how it would look:
+
+```java
+package Tree.Leaf;
+
+import org.dreambot.api.script.frameworks.treebranch.Leaf;
+import org.dreambot.api.methods.prayer.Prayer;
+import org.dreambot.api.methods.prayer.Prayers;
+import org.dreambot.api.methods.combat.Combat;
+import static org.dreambot.api.utilities.Logger.log;
+
+public class SelectPrayerLeaf extends Leaf {
+    @Override
+    public boolean isValid() {
+        return !Prayers.isActive(Prayer.PROTECT_FROM_MELEE);  // Prayer not active
+    }
+
+    @Override
+    public int onLoop() {
+        Prayers.toggle(Prayer.PROTECT_FROM_MELEE);
+        log("Activated Protect from Melee prayer.");
+        return 100;  // Short delay
+    }
+}
+
+public class SwitchWeaponLeaf extends Leaf {
+    @Override
+    public boolean isValid() {
+        return !Combat.getCurrentWeapon().equals("Sword");  // Check if weapon needs switching
+    }
+
+    @Override
+    public int onLoop() {
+        Combat.equip("Sword");
+        log("Switched to Sword.");
+        return 100;  // Short delay
+    }
+}
+
+public class AttackLeaf extends Leaf {
+    @Override
+    public boolean isValid() {
+        return !Combat.isInCombat();  // Attack only if not already in combat
+    }
+
+    @Override
+    public int onLoop() {
+        Combat.attack("Enemy");
+        log("Attacking Enemy.");
+        return 100;  // Short delay
+    }
+}
+```
+
+And then in **TreeScript**, you’d add each `Leaf` to a `Branch` for a PvP sequence:
+
+```java
+public class PvPBranch extends Branch {
+    public PvPBranch() {
+        addLeaves(new SelectPrayerLeaf(), new SwitchWeaponLeaf(), new AttackLeaf());
+    }
+}
+```
+
+### Key Difference in Control Flow and Re-Evaluation
+
+- **Modular State Machine (MSM)**:
+   - Each `SequenceState` progresses through its `ActionState`s sequentially, with control briefly passing through DreamBot’s `onLoop` to allow for game updates before moving to the next action.
+   - **No root re-evaluation** is necessary between steps in a `SequenceState`, so the execution remains focused on the sequence until it completes, optimizing for uninterrupted sequences in high-speed scenarios.
+
+- **TreeScript**:
+   - **Iterator-Based Execution**: Each `Branch` evaluates its child nodes using an iterator to determine the next valid `Leaf`, then executes it and returns control to the root. 
+   - This design **returns to the root and re-evaluates the tree** at each loop, which can add overhead and complexity in scenarios that need sequential execution.
+
+### Summary
+
+In both frameworks, control returns to `onLoop`, but **TreeScript’s iterator-based approach re-evaluates each node at the root**. By contrast, **MSM’s `SequenceState` progresses linearly through its `ActionState`s** without requiring re-evaluation, making it more streamlined and efficient for executing high-speed action sequences.
