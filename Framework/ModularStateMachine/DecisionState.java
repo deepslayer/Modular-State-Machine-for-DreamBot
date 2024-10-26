@@ -46,6 +46,7 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
     @Override
     public void enter() {
         log("Entering DecisionState: " + this.getClass().getSimpleName());
+        resetCompletion();
         findNextValidSubstate();
     }
 
