@@ -15,7 +15,7 @@ This tutorial will guide you through creating a DreamBot script that uses a stat
 
 ### Prerequisites
 
-Make sure that you have DreamBot set up, along with the `Framework` package setup under your 'src' folder.
+Make sure that you have DreamBot set up, along with the `Framework` package setup under your `src` folder.
 
 ---
 
