@@ -6,6 +6,8 @@ import Framework.Interface.ValidatableState;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.dreambot.api.utilities.Logger.log;
+
 /**
  * The StateMachine class manages a list of states and ensures that
  * the correct state is executed based on validity and completeness.
@@ -54,24 +56,25 @@ public class StateMachine {
             currentState.exit();  // Exit the current state if transitioning
         }
 
-        // Find the next valid state
+        currentState = null;  // Reset current state before searching
         for (State state : states) {
             if (state instanceof ValidatableState && ((ValidatableState) state).isValid()) {
                 currentState = state;
-                currentState.enter();  // Enter the valid state
-                return;
-            }
-
-            if (state instanceof ActionState) {
+                break;  // Set and break to avoid unnecessary checks
+            } else if (state instanceof ActionState) {
                 currentState = state;
-                currentState.enter();  // Enter the ActionState directly
-                return;
+                break;
             }
         }
 
-        // No valid state was found, but the machine keeps cycling
-        currentState = null;  // Set currentState to null, but keep running in next loop
+        if (currentState != null) {
+            currentState.enter();  // Only enter if we found a new valid state
+        } else {
+            log("No valid state found. The state machine will continue checking.");
+        }
     }
+
+
 
     /**
      * Checks if the state machine is currently running.

@@ -2,7 +2,6 @@ package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
 import Framework.Interface.ValidatableState;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +40,46 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
     }
 
     /**
-     * Called when entering the DecisionState. It will search for the first valid substate to run.
+     * Final enter method that calls the subclass-specific onEnter() logic.
      */
     @Override
-    public void enter() {
-        log("Entering DecisionState: " + this.getClass().getSimpleName());
+    public final void enter() {
+        onEnter();
         resetCompletion();
         findNextValidSubstate();
     }
+
+    /**
+     * Final exit method that calls the subclass-specific onExit() logic.
+     */
+    @Override
+    public final void exit() {
+        if (currentSubstate != null) {
+            currentSubstate.exit();
+        }
+        onExit();
+    }
+    /**
+     * Abstract method to determine if the DecisionState itself is valid.
+     *
+     * @return true if the DecisionState is valid, otherwise false.
+     */
+    @Override
+    public abstract boolean isValid();
+
+    /**
+     * Abstract method for subclass-specific behavior on enter.
+     * Subclasses are required to override this method.
+     */
+    @Override
+    protected abstract void onEnter();
+
+    /**
+     * Abstract method for subclass-specific behavior on exit.
+     * Subclasses are required to override this method.
+     */
+    @Override
+    protected abstract void onExit();
 
     /**
      * Executes the current valid substate if found. If no valid substate is found,
@@ -69,21 +100,9 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
     }
 
     /**
-     * Called when exiting the DecisionState. It will also exit the current substate
-     * if one is still running.
-     */
-    @Override
-    public void exit() {
-        log("Exiting DecisionState: " + this.getClass().getSimpleName());
-        if (currentSubstate != null) {
-            currentSubstate.exit();
-        }
-    }
-
-    /**
      * Finds the next valid substate in the decisionSubstates list.
      */
-    private void findNextValidSubstate() {
+    protected void findNextValidSubstate() {
         currentSubstate = null;  // Reset current substate
 
         // Iterate over each substate and check if it's valid
@@ -96,7 +115,6 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
         }
 
         // No valid substate found, mark this DecisionState as complete
-        log("No valid substates found for DecisionState: " + this.getClass().getSimpleName());
         markComplete();
         returnToRoot();
     }
@@ -105,15 +123,10 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
      * Returns control to the root state machine after the decision process completes.
      * This ensures that after completing, the root regains control instead of the parent DecisionState.
      */
-    private void returnToRoot() {
-        machine.update();  // Calls the root machine update cycle
+    protected void returnToRoot() {
+        if (machine != null && !isComplete()) {
+            markComplete();  // Make sure the current state is marked as complete before updating
+            machine.update();
+        }
     }
-
-    /**
-     * Abstract method to determine if the DecisionState itself is valid.
-     *
-     * @return true if the DecisionState is valid, otherwise false.
-     */
-    @Override
-    public abstract boolean isValid();
 }

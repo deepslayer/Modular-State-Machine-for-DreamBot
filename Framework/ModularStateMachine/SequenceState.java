@@ -55,18 +55,17 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
         this.parentState = parent;
     }
 
-
     /**
-     * Called when the SequenceState is entered. It will initialize the sequence
-     * by setting the first substate as the current substate and calling its enter() method.
+     * Final enter method that calls the subclass-specific onEnter() logic.
      */
     @Override
-    public void enter() {
+    public final void enter() {
         if (substates.isEmpty()) {
             log("No substates in SequenceState: " + this.getClass().getSimpleName() + ". Marking as complete.");
             markComplete();
             returnControl();  // Immediately return control if empty
         } else {
+            onEnter();
             currentSubstateIndex = 0;  // Start at the first substate
             currentSubstate = substates.get(currentSubstateIndex);
             currentSubstate.enter();  // Enter the first substate
@@ -74,6 +73,38 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
         }
     }
 
+    /**
+     * Final exit method that calls the subclass-specific onExit() logic.
+     */
+    @Override
+    public final void exit() {
+        if (currentSubstate != null && !currentSubstate.isComplete()) {
+            currentSubstate.exit();  // Exit the current substate if it hasn't finished yet
+        }
+        onExit();
+    }
+    /**
+     * Determines if the SequenceState should be executed based on its own validity conditions.
+     * This method should be overridden by subclasses to provide specific validity logic.
+     *
+     * @return true if this SequenceState should be executed, otherwise false.
+     */
+    @Override
+    public abstract boolean isValid();
+
+    /**
+     * Abstract method for subclass-specific behavior on enter.
+     * Subclasses are required to override this method.
+     */
+    @Override
+    protected abstract void onEnter();
+
+    /**
+     * Abstract method for subclass-specific behavior on exit.
+     * Subclasses are required to override this method.
+     */
+    @Override
+    protected abstract void onExit();
 
     /**
      * Executes the current substate (either an ActionState or another SequenceState).
@@ -101,16 +132,6 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
     }
 
     /**
-     * Called when the SequenceState is exited. It will also exit the current substate if it is still running.
-     */
-    @Override
-    public void exit() {
-        if (currentSubstate != null && !currentSubstate.isComplete()) {
-            currentSubstate.exit();  // Exit the current substate if it hasn't finished yet
-        }
-    }
-
-    /**
      * Checks if the SequenceState is complete. It is marked complete when all substates have been executed.
      *
      * @return true if all substates have been completed, false otherwise.
@@ -121,21 +142,12 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
     }
 
     /**
-     * Determines if the SequenceState should be executed based on its own validity conditions.
-     * This method should be overridden by subclasses to provide specific validity logic.
-     *
-     * @return true if this SequenceState should be executed, otherwise false.
-     */
-    @Override
-    public abstract boolean isValid();
-
-    /**
      * Returns control based on the type of parent state:
      * - If the parent is a SequenceState, return control to that parent.
      * - If the parent is a DecisionState, return control to the root StateMachine.
      * - If the parent is null, return control to the root StateMachine.
      */
-    private void returnControl() {
+    protected void returnControl() {
         if (parentState instanceof SequenceState) {
             parentState.execute();  // Return control to the parent SequenceState
         } else if (parentState instanceof DecisionState || parentState == null) {
