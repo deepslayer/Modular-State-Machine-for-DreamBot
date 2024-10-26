@@ -51,17 +51,17 @@ public class StateMachine {
      * If no valid states are found, the state machine continues to cycle and checks again
      * in the next loop cycle.
      */
+
     private void transitionToNextValidState() {
         if (currentState != null) {
             currentState.exit();  // Exit the current state if transitioning
         }
 
         currentState = null;  // Reset current state before searching
+
         for (State state : states) {
+            // Only enter states that are valid according to their isValid() method
             if (state instanceof ValidatableState && ((ValidatableState) state).isValid()) {
-                currentState = state;
-                break;  // Set and break to avoid unnecessary checks
-            } else if (state instanceof ActionState) {
                 currentState = state;
                 break;
             }
@@ -70,9 +70,10 @@ public class StateMachine {
         if (currentState != null) {
             currentState.enter();  // Only enter if we found a new valid state
         } else {
-            log("No valid state found. The state machine will continue checking.");
+            log("No valid state found.");
         }
     }
+
 
 
 
