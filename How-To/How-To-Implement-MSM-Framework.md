@@ -99,14 +99,14 @@ public class LogAction extends ActionState {
     }
 
     @Override
-    public void execute() {
-        log("Executing LogAction...");
-        markComplete();  // Mark the action as complete after execution
+    protected void onEnter() {
+        log("Entering LogAction...");
     }
 
     @Override
-    protected void onEnter() {
-        log("Entering LogAction...");
+    public void execute() {
+        log("Executing LogAction...");
+        markComplete();  // Mark the action as complete after execution
     }
 
     @Override
@@ -135,6 +135,11 @@ public class SetupSequence extends SequenceState {
     }
 
     @Override
+    public boolean isValid() {
+        return true;  // Makes the sequence valid for execution
+    }
+
+    @Override
     protected void onEnter() {
         log("Entering SetupSequence...");
     }
@@ -142,11 +147,6 @@ public class SetupSequence extends SequenceState {
     @Override
     protected void onExit() {
         log("Exiting SetupSequence...");
-    }
-
-    @Override
-    public boolean isValid() {
-        return true;  // Makes the sequence valid for execution
     }
 }
 ```
@@ -170,6 +170,11 @@ public class InitialDecisionState extends DecisionState {
     }
 
     @Override
+    public boolean isValid() {
+        return true;  // Ensures this decision state is valid for execution
+    }
+
+    @Override
     protected void onEnter() {
         log("Entering InitialDecisionState...");
     }
@@ -177,11 +182,6 @@ public class InitialDecisionState extends DecisionState {
     @Override
     protected void onExit() {
         log("Exiting InitialDecisionState...");
-    }
-
-    @Override
-    public boolean isValid() {
-        return true;  // Ensures this decision state is valid for execution
     }
 }
 ```
