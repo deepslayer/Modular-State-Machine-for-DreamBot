@@ -2,6 +2,8 @@ package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
 
+import static org.dreambot.api.utilities.Logger.log;
+
 /**
  * ActionState is an abstract class that represents an individual action.
  * It implements the core methods for managing state execution and completion.
@@ -24,6 +26,7 @@ public abstract class ActionState implements State {
      */
     @Override
     public void enter() {
+        log("Enter " + this.getClass().getSimpleName());
         resetCompletion();  // Default behavior in ActionState
         onEnter();          // Call subclass-specific behavior
     }
@@ -33,6 +36,7 @@ public abstract class ActionState implements State {
      */
     @Override
     public void exit() {
+        log("Exit " + this.getClass().getSimpleName());
         onExit();  // Call subclass-specific exit behavior
     }
 

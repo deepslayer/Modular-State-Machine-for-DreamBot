@@ -7,6 +7,7 @@ import java.util.List;
 
 import static org.dreambot.api.utilities.Logger.log;
 
+
 /**
  * DecisionState makes decisions about which substate to execute based on validity.
  * It can contain other DecisionStates or SequenceStates.
@@ -44,6 +45,7 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
      */
     @Override
     public final void enter() {
+        log("Enter " + this.getClass().getSimpleName());
         onEnter();
         resetCompletion();
         findNextValidSubstate();
@@ -57,6 +59,7 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
         if (currentSubstate != null) {
             currentSubstate.exit();
         }
+        log("Exit " + this.getClass().getSimpleName());
         onExit();
     }
     /**

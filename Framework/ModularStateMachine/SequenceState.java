@@ -12,14 +12,14 @@ import static org.dreambot.api.utilities.Logger.log;
  * It does not check for validity (isValid()); it simply executes each substate in order.
  *
  * When a SequenceState completes:
- * - If the parent is a SequenceState, control returns to that parent.
+ * - If the parent is a SequenceState or SelectorState, control returns to that parent.
  * - If the parent is a DecisionState, control returns to the root StateMachine.
  */
 public abstract class SequenceState extends ActionState implements ValidatableState {
     private final List<State> substates = new ArrayList<>();  // List of substates (can be ActionState or SequenceState)
     private State currentSubstate;  // The currently active substate being executed
     private int currentSubstateIndex = 0;  // Keeps track of the current substate index
-    private State parentState;  // Tracks the parent state (could be a SequenceState or DecisionState)
+    private State parentState;  // Tracks the parent state (could be a SequenceState, SelectorState, or DecisionState)
 
     /**
      * Constructor for SequenceState.
@@ -40,16 +40,20 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
         substates.add(substate);
         if (substate instanceof SequenceState) {
             ((SequenceState) substate).setParent(this);  // Set the parent to this SequenceState
+        } else if (substate instanceof SelectorState) {
+            ((SelectorState) substate).setParent(this);  // Set parent to SelectorState if applicable
         }
     }
+
+
 
     /**
      * Sets the parent state of this SequenceState.
      *
-     * @param parent The parent state, either a SequenceState or a DecisionState.
+     * @param parent The parent state, either a SequenceState, SelectorState, or a DecisionState.
      */
     protected void setParent(State parent) {
-        if (!(parent instanceof SequenceState || parent instanceof DecisionState || parent == null)) {
+        if (!(parent instanceof SequenceState || parent instanceof SelectorState || parent instanceof DecisionState || parent == null)) {
             throw new IllegalArgumentException("Invalid parent type for SequenceState: " + parent.getClass().getSimpleName());
         }
         this.parentState = parent;
@@ -65,6 +69,7 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
             markComplete();
             returnControl();  // Immediately return control if empty
         } else {
+            log("Enter " + this.getClass().getSimpleName());
             onEnter();
             currentSubstateIndex = 0;  // Start at the first substate
             currentSubstate = substates.get(currentSubstateIndex);
@@ -81,8 +86,10 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
         if (currentSubstate != null && !currentSubstate.isComplete()) {
             currentSubstate.exit();  // Exit the current substate if it hasn't finished yet
         }
+        log("Exit " + this.getClass().getSimpleName());
         onExit();
     }
+
     /**
      * Determines if the SequenceState should be executed based on its own validity conditions.
      * This method should be overridden by subclasses to provide specific validity logic.
@@ -143,13 +150,13 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
 
     /**
      * Returns control based on the type of parent state:
-     * - If the parent is a SequenceState, return control to that parent.
+     * - If the parent is a SequenceState or SelectorState, return control to that parent.
      * - If the parent is a DecisionState, return control to the root StateMachine.
      * - If the parent is null, return control to the root StateMachine.
      */
     protected void returnControl() {
-        if (parentState instanceof SequenceState) {
-            parentState.execute();  // Return control to the parent SequenceState
+        if (parentState instanceof SequenceState || parentState instanceof SelectorState) {
+            parentState.execute();  // Return control to the parent SequenceState or SelectorState
         } else if (parentState instanceof DecisionState || parentState == null) {
             machine.update();  // Return control to the root StateMachine if DecisionState or no parent
         }
