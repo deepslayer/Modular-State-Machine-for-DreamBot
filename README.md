@@ -21,7 +21,13 @@ The **Modular State Machine (MSM)** is an adaptable and efficient state machine 
    - **Modular Hierarchy Support**: `SequenceState` can be nested within `DecisionState`, 'SequenceState' or used standalone, providing a flexible structure for linear task sequences without requiring re-evaluation each loop cycle.
    - **Efficient Control Return**: Once a `SequenceState` completes all of its substates, control automatically returns to its parent, either a `DecisionState`, 'SequenceState' or the root `StateMachine`.
 
-**4. StateMachine**  
+**4. SelectorState**  
+   - **Selective Action within Sequence**: `SelectorState` allows for flexible decision-making within a sequence, enabling a choice among multiple substates rather than fixed sequential execution. It is similar to `DecisionState` but placed within a `SequenceState`, allowing for non-linear action selection in a structured sequence.
+   - **Adaptive, Non-Sequential Execution**: Unlike `SequenceState`, `SelectorState` evaluates a range of possible substates and selects one to activate based on specified conditions. Once a substate is selected and marked complete, `SelectorState` returns control to its parent `SequenceState`.
+   - **Lifecycle Management**: Includes methods for lifecycle control (`enter()`, `execute()`, `exit()`) for structured entry, task execution, and exit, maintaining continuity within the parent sequence. During each execution cycle, `SelectorState` evaluates its substates and selects a valid one to activate.
+   - **Partial Task Completion within Sequence**: Just as with `ActionState`, substates within `SelectorState` can complete incrementally, enabling tasks to span multiple cycles if needed. Once a substate completes, `SelectorState` returns to the parent `SequenceState`, resuming its place within the broader sequence.
+
+**5. StateMachine**  
    - **Centralized Control**: The root `StateMachine` manages all states, transitioning between them based on validity and completeness.
    - **Loop-Driven Execution**: All state transitions and updates happen within DreamBot’s `onLoop` function, allowing individual states to run without blocking background processes. 
 
