@@ -13,7 +13,7 @@ import static org.dreambot.api.utilities.Logger.log;
 public abstract class SelectorState extends ActionState {
     private final List<SequenceState> selectorSubstates = new ArrayList<>();  // List of potential SequenceState substates
     private SequenceState currentSubstate;  // Currently active substate
-    private State parentState;  // Tracks the parent state, could be SequenceState or DecisionState
+    private State parentState;  // Tracks the parent state, could be SequenceState or SelectorState
 
     /**
      * Constructor for SelectorState.
@@ -38,10 +38,10 @@ public abstract class SelectorState extends ActionState {
     /**
      * Sets the parent state of this SelectorState.
      *
-     * @param parent The parent state, either a SequenceState, SelectorState, or DecisionState.
+     * @param parent The parent state, either a SequenceState or another SelectorState.
      */
     protected void setParent(State parent) {
-        if (!(parent instanceof SequenceState || parent instanceof SelectorState || parent instanceof DecisionState || parent == null)) {
+        if (!(parent instanceof SequenceState || parent instanceof SelectorState || parent == null)) {
             throw new IllegalArgumentException("Invalid parent type for SelectorState: " + parent.getClass().getSimpleName());
         }
         this.parentState = parent;
@@ -92,11 +92,11 @@ public abstract class SelectorState extends ActionState {
     public void execute() {
         if (currentSubstate != null) {
             if (!currentSubstate.isComplete()) {
-                currentSubstate.execute();  // Execute the current valid substate
+                currentSubstate.execute();
             } else {
-                currentSubstate.exit();  // Exit the completed substate
+                currentSubstate.exit();
                 markComplete();
-                returnToParent();  // Return control to the parent
+                returnToParent();
             }
         } else {
             markComplete();  // Mark SelectorState as complete if no valid substate
