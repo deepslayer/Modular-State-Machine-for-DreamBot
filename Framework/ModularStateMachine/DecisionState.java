@@ -2,6 +2,8 @@ package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
 import Framework.Interface.ValidatableState;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
      */
     @Override
     public final void enter() {
-        log("Enter " + this.getClass().getSimpleName());
+      //  log(Color.WHITE,"Enter " + this.getClass().getSimpleName());
         onEnter();
         resetCompletion();
         findNextValidSubstate();
@@ -59,7 +61,7 @@ public abstract class DecisionState extends ActionState implements ValidatableSt
         if (currentSubstate != null) {
             currentSubstate.exit();
         }
-        log("Exit " + this.getClass().getSimpleName());
+     //   log(Color.WHITE,"Exit " + this.getClass().getSimpleName());
         onExit();
     }
     /**

@@ -70,7 +70,7 @@ public class StateMachine {
         if (currentState != null) {
             currentState.enter();  // Only enter if we found a new valid state
         } else {
-            log("No valid state found.");
+           // log("No valid state found.");
         }
     }
 

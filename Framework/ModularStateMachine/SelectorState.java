@@ -1,6 +1,8 @@
 package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import static org.dreambot.api.utilities.Logger.log;
@@ -52,7 +54,7 @@ public abstract class SelectorState extends ActionState {
      */
     @Override
     public final void enter() {
-        log("Enter " + this.getClass().getSimpleName());
+    //    log(Color.WHITE,"Enter " + this.getClass().getSimpleName());
         resetCompletion();
         onEnter();
         findNextValidSubstate();
@@ -66,7 +68,7 @@ public abstract class SelectorState extends ActionState {
         if (currentSubstate != null) {
             currentSubstate.exit();
         }
-        log("Exit " + this.getClass().getSimpleName());
+      //  log(Color.WHITE,"Exit " + this.getClass().getSimpleName());
         onExit();
     }
 

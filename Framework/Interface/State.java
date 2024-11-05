@@ -1,5 +1,7 @@
 package Framework.Interface;
 
+import Framework.ModularStateMachine.SequenceState;
+
 /**
  * Interface representing a basic state.
  * It contains methods for managing the state lifecycle.

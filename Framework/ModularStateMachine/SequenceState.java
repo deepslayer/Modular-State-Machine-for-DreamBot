@@ -2,10 +2,10 @@ package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
 import Framework.Interface.ValidatableState;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.dreambot.api.utilities.Logger.log;
 
 /**
  * SequenceState manages a sequence of substates that are executed sequentially.
@@ -65,11 +65,11 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
     @Override
     public final void enter() {
         if (substates.isEmpty()) {
-            log("No substates in SequenceState: " + this.getClass().getSimpleName() + ". Marking as complete.");
+         //   log("No substates in SequenceState: " + this.getClass().getSimpleName() + ". Marking as complete.");
             markComplete();
             returnControl();  // Immediately return control if empty
         } else {
-            log("Enter " + this.getClass().getSimpleName());
+      //      log(Color.WHITE,"Enter " + this.getClass().getSimpleName());
             onEnter();
             currentSubstateIndex = 0;  // Start at the first substate
             currentSubstate = substates.get(currentSubstateIndex);
@@ -86,7 +86,7 @@ public abstract class SequenceState extends ActionState implements ValidatableSt
         if (currentSubstate != null && !currentSubstate.isComplete()) {
             currentSubstate.exit();  // Exit the current substate if it hasn't finished yet
         }
-        log("Exit " + this.getClass().getSimpleName());
+     //   log(Color.WHITE,"Exit " + this.getClass().getSimpleName());
         onExit();
     }
 

@@ -2,6 +2,8 @@ package Framework.ModularStateMachine;
 
 import Framework.Interface.State;
 
+import java.awt.*;
+
 import static org.dreambot.api.utilities.Logger.log;
 
 /**
@@ -26,7 +28,7 @@ public abstract class ActionState implements State {
      */
     @Override
     public void enter() {
-        log("Enter " + this.getClass().getSimpleName());
+    //    log(Color.WHITE,"Enter " + this.getClass().getSimpleName());
         resetCompletion();  // Default behavior in ActionState
         onEnter();          // Call subclass-specific behavior
     }
@@ -36,7 +38,7 @@ public abstract class ActionState implements State {
      */
     @Override
     public void exit() {
-        log("Exit " + this.getClass().getSimpleName());
+   //     log(Color.WHITE,"Exit " + this.getClass().getSimpleName());
         onExit();  // Call subclass-specific exit behavior
     }
 
